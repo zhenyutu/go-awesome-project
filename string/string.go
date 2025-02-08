@@ -24,18 +24,25 @@ func main() {
 	buffer.WriteString("\t")
 	buffer.WriteString(s2)
 	fmt.Println(buffer.String())
+	fmt.Println("*****************")
 
 	var buffer2 strings.Builder
 	buffer2.WriteString(s1)
 	buffer2.WriteString("\t")
 	buffer2.WriteString(s2)
 	fmt.Println(buffer2.String())
+	fmt.Println("*****************")
 
 	var s3 = new(string)
+	var s3_1 string
 	s3 = &s1
+	s3_1 = s1
 	fmt.Println(s3)
 	fmt.Println(*s3)
+	fmt.Println(s3_1)
 	fmt.Println(reflect.TypeOf(s3))
+	fmt.Println(reflect.TypeOf(s3_1))
+	fmt.Println("*****************")
 
 	s4 := [5]string{"1"}
 	s5 := [5]string{"1"}
