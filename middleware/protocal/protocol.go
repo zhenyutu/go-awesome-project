@@ -1,7 +1,7 @@
 package main
 
 import (
-	"awesomeProject/protocal/student"
+	"awesomeProject/middleware/protocal/student"
 	"fmt"
 	"github.com/golang/protobuf/proto"
 	"log"
