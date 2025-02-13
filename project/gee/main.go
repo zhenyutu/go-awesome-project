@@ -1,7 +1,6 @@
 package main
 
 import (
-	"awesomeProject/project/gee/gee"
 	"fmt"
 	"log"
 	"net/http"
@@ -51,10 +50,4 @@ func main() {
 
 	handleFuncTest()
 	ListenHandleTest()
-
-	gee := gee.New()
-	gee.GET("/hello", func(w http.ResponseWriter, r *http.Request) {
-		fmt.Fprintf(w, "Hello, %s!", r.FormValue("name"))
-	})
-	gee.Run(":8080")
 }
