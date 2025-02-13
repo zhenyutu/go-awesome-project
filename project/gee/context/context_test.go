@@ -20,5 +20,11 @@ func TestContext(t *testing.T) {
 		c.String(http.StatusOK, "test")
 	})
 
+	gee.GET("/query", func(c *Context) {
+		c.JSON(http.StatusOK, map[string]any{
+			"name": c.Query("name"),
+		})
+	})
+
 	gee.Run()
 }

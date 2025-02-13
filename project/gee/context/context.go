@@ -5,6 +5,9 @@ import (
 	"net/http"
 )
 
+/**
+ * context definition
+ */
 type Context struct {
 	writer     http.ResponseWriter
 	request    *http.Request
@@ -62,6 +65,17 @@ func (c *Context) JSON(code int, obj interface{}) {
 	if err := encoder.Encode(obj); err != nil {
 		http.Error(c.writer, err.Error(), http.StatusInternalServerError)
 	}
+}
+
+/**
+ * param parse
+ */
+func (c *Context) PostForm(key string) string {
+	return c.request.FormValue(key)
+}
+
+func (c *Context) Query(key string) string {
+	return c.request.URL.Query().Get(key)
 }
 
 /*
