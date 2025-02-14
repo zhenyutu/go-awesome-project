@@ -7,17 +7,32 @@ import (
 
 type HandleFunc func(w http.ResponseWriter, r *http.Request)
 
+/**
+ * Router Definition
+ */
+type Router struct {
+	handlers *Tire
+}
+
+func (r *Router) addRoute(method string, pattern string, handler HandleFunc) {
+	key := method + "-" + pattern
+	r.handlers.insertKeyValue(key, handler)
+}
+
+/**
+ * Dispatcher definition
+ */
 type Dispatcher struct {
-	routers *Tire
+	router *Router
 }
 
 func New() *Dispatcher {
-	return &Dispatcher{routers: &Tire{}}
+	router := &Router{handlers: &Tire{}}
+	return &Dispatcher{router: router}
 }
 
 func (d *Dispatcher) addRoute(method string, pattern string, handler HandleFunc) {
-	key := method + "-" + pattern
-	d.routers.insertKeyValue(key, handler)
+	d.router.addRoute(method, pattern, handler)
 }
 
 func (d *Dispatcher) GET(pattern string, handler HandleFunc) {
@@ -31,7 +46,7 @@ func (d *Dispatcher) POST(pattern string, handler HandleFunc) {
 // 实现Handler接口
 func (dispatch *Dispatcher) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	key := r.Method + "-" + r.URL.Path
-	if handler := dispatch.routers.search(key); handler != nil {
+	if handler := dispatch.router.handlers.search(key); handler != nil {
 		handler.value(w, r)
 	} else {
 		fmt.Fprintf(w, "404 NOT FOUND: %s\n", r.URL)
