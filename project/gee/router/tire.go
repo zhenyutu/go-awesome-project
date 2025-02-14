@@ -1,7 +1,7 @@
 package router
 
 import (
-	"net/http"
+	"awesomeProject/project/gee/common"
 	"strings"
 )
 
@@ -9,12 +9,10 @@ type Tire struct {
 	root *Node
 }
 
-type HandleFunc func(w http.ResponseWriter, r *http.Request)
-
 type Node struct {
 	//pattern  string
 	key      string
-	Value    HandleFunc
+	Value    common.HandleFunc
 	children []*Node
 	isEnd    bool
 }
@@ -56,7 +54,7 @@ func (t *Tire) insert(key string) {
 	n.isEnd = true
 }
 
-func (t *Tire) InsertKeyValue(key string, value HandleFunc) {
+func (t *Tire) InsertKeyValue(key string, value common.HandleFunc) {
 	pattern := strings.Split(key, "/")
 	if t.root == nil {
 		t.root = &Node{}
@@ -71,7 +69,7 @@ func (t *Tire) InsertKeyValue(key string, value HandleFunc) {
 		n = insert(p, n)
 	}
 	n.isEnd = true
-	n.value = value
+	n.Value = value
 }
 
 func insert(p string, node *Node) *Node {

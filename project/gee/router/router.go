@@ -1,6 +1,7 @@
 package router
 
 import (
+	"awesomeProject/project/gee/common"
 	"fmt"
 	"net/http"
 )
@@ -12,7 +13,7 @@ type Router struct {
 	handlers *Tire
 }
 
-func (r *Router) addRoute(method string, pattern string, handler HandleFunc) {
+func (r *Router) addRoute(method string, pattern string, handler common.HandleFunc) {
 	key := method + "-" + pattern
 	r.handlers.InsertKeyValue(key, handler)
 }
@@ -29,15 +30,15 @@ func New() *Dispatcher {
 	return &Dispatcher{router: router}
 }
 
-func (d *Dispatcher) addRoute(method string, pattern string, handler HandleFunc) {
+func (d *Dispatcher) addRoute(method string, pattern string, handler common.HandleFunc) {
 	d.router.addRoute(method, pattern, handler)
 }
 
-func (d *Dispatcher) GET(pattern string, handler HandleFunc) {
+func (d *Dispatcher) GET(pattern string, handler common.HandleFunc) {
 	d.addRoute(http.MethodGet, pattern, handler)
 }
 
-func (d *Dispatcher) POST(pattern string, handler HandleFunc) {
+func (d *Dispatcher) POST(pattern string, handler common.HandleFunc) {
 	d.addRoute(http.MethodPost, pattern, handler)
 }
 
