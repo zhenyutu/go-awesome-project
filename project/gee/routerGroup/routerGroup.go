@@ -5,6 +5,7 @@ import (
 	"awesomeProject/project/gee/router"
 	"fmt"
 	"net/http"
+	"strings"
 )
 
 /**
@@ -41,6 +42,10 @@ func (group *RouterGroup) POST(pattern string, handler common.HandleFunc) {
 	group.addRoute("POST", pattern, handler)
 }
 
+func (group *RouterGroup) Use(middlewares ...common.HandleFunc) {
+	group.middlewares = append(group.middlewares, middlewares...)
+}
+
 /**
  * Dispatcher definition
  */
@@ -75,11 +80,23 @@ func (d *Dispatcher) POST(pattern string, handler common.HandleFunc) {
 
 // 实现Handler接口
 func (dispatch *Dispatcher) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	var handlers []common.HandleFunc
+	for _, group := range dispatch.groups {
+		if strings.HasPrefix(r.URL.Path, group.prefix) {
+			handlers = append(handlers, group.middlewares...)
+		}
+	}
+
 	key := r.Method + "-" + r.URL.Path
 	if handler := dispatch.router.handlers.Search(key); handler != nil {
-		handler.Value(w, r)
+		handlers = append(handlers, handler.Value)
 	} else {
 		fmt.Fprintf(w, "404 NOT FOUND: %s\n", r.URL)
+		return
+	}
+
+	for _, f := range handlers {
+		f(w, r)
 	}
 }
 
