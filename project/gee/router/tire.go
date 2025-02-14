@@ -1,15 +1,20 @@
 package router
 
-import "strings"
+import (
+	"net/http"
+	"strings"
+)
 
 type Tire struct {
 	root *Node
 }
 
+type HandleFunc func(w http.ResponseWriter, r *http.Request)
+
 type Node struct {
 	//pattern  string
 	key      string
-	value    HandleFunc
+	Value    HandleFunc
 	children []*Node
 	isEnd    bool
 }
@@ -51,7 +56,7 @@ func (t *Tire) insert(key string) {
 	n.isEnd = true
 }
 
-func (t *Tire) insertKeyValue(key string, value HandleFunc) {
+func (t *Tire) InsertKeyValue(key string, value HandleFunc) {
 	pattern := strings.Split(key, "/")
 	if t.root == nil {
 		t.root = &Node{}
@@ -86,7 +91,7 @@ func insert(p string, node *Node) *Node {
 /**
  * search
  */
-func (t *Tire) search(url string) *Node {
+func (t *Tire) Search(url string) *Node {
 	pattern := parsePattern(url)
 	root := t.root
 
