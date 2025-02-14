@@ -14,6 +14,11 @@ func main() {
 		c.JSON(http.StatusOK, "who are you?")
 	})
 
+	s.GET("/panic", func(c *gin.Context) {
+		names := []string{"geektutu"}
+		c.String(http.StatusOK, names[100])
+	})
+
 	s.GET("/ping", func(c *gin.Context) {
 		c.JSON(200, gin.H{
 			"message": "pong",
