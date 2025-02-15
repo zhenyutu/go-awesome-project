@@ -22,7 +22,7 @@ func New(maxSize int64) *Cache {
 	return &Cache{maxSize: maxSize, list: list.New(), cache: make(map[string]*list.Element)}
 }
 
-func (c *Cache) get(key string) (v Value, ok bool) {
+func (c *Cache) Get(key string) (v Value, ok bool) {
 	if e, ok := c.cache[key]; ok {
 		c.list.MoveToFront(e)
 		kv := e.Value.(*entry)
@@ -31,7 +31,7 @@ func (c *Cache) get(key string) (v Value, ok bool) {
 	return nil, false
 }
 
-func (c *Cache) put(key string, value Value) {
+func (c *Cache) Put(key string, value Value) {
 	if e, ok := c.cache[key]; ok {
 		c.list.MoveToFront(e)
 		kv := e.Value.(*entry)
