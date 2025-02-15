@@ -54,7 +54,7 @@ func getGroup(name string) *Group {
 	return groups[name]
 }
 
-func (g *Group) get(key string) (*CacheData, bool) {
+func (g *Group) Get(key string) (*CacheData, bool) {
 	if v, ok := g.cache.Get(key); ok {
 		return v, true
 	}
@@ -75,4 +75,8 @@ func (g *Group) load(key string) (*CacheData, error) {
 	cacheData := &CacheData{data: data}
 	g.cache.Put(key, *cacheData)
 	return cacheData, nil
+}
+
+func (g *Group) Put(key string, value CacheData) {
+	g.cache.Put(key, value)
 }
