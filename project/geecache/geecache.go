@@ -25,6 +25,10 @@ type Group struct {
 	getter Getter
 	cache  Cache
 	picker PeerPicker
+
+	//single run
+	mu sync.RWMutex
+	rm map[string]*run
 }
 
 var (
@@ -56,6 +60,41 @@ func getGroup(name string) *Group {
 	return groups[name]
 }
 
+/**
+ * Single Run
+ */
+type run struct {
+	wg    *sync.WaitGroup
+	value interface{}
+	err   error
+}
+
+func (g *Group) Run(key string, fn func() (interface{}, error)) (interface{}, error) {
+	g.mu.Lock()
+	defer g.mu.Unlock()
+
+	if g.rm == nil {
+		g.rm = make(map[string]*run)
+	}
+
+	if runner, ok := g.rm[key]; ok {
+		runner.wg.Wait()
+		return runner.value, runner.err
+	}
+
+	runner := &run{wg: &sync.WaitGroup{}}
+	runner.wg.Add(1)
+	g.rm[key] = runner
+
+	runner.value, runner.err = fn()
+	runner.wg.Done()
+
+	return runner.value, runner.err
+}
+
+/**
+ * Data Query
+ */
 func (g *Group) Get(key string) (*CacheData, bool) {
 	if v, ok := g.cache.Get(key); ok {
 		return v, true
@@ -69,19 +108,26 @@ func (g *Group) Get(key string) (*CacheData, bool) {
 }
 
 func (g *Group) load(key string) (*CacheData, error) {
-	if g.picker != nil {
-		peer, _ := g.picker.Pick(key)
-		if peer != nil {
-			data, err := peer.PeerGet(g.name, key)
-			if data != nil {
-				cacheData := &CacheData{data: data}
-				return cacheData, nil
+	data, err := g.Run(key, func() (interface{}, error) {
+		if g.picker != nil {
+			peer, _ := g.picker.Pick(key)
+			if peer != nil {
+				data, err := peer.PeerGet(g.name, key)
+				if data != nil {
+					cacheData := &CacheData{data: data}
+					return cacheData, nil
+				}
+				log.Println("[GeeCache] Failed to get from peer", err)
 			}
-			log.Println("[GeeCache] Failed to get from peer", err)
 		}
+
+		return g.loadLocally(key)
+	})
+	if err != nil {
+		return nil, err
 	}
 
-	return g.loadLocally(key)
+	return data.(*CacheData), err
 }
 
 func (g *Group) loadLocally(key string) (*CacheData, error) {
