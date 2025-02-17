@@ -1,6 +1,7 @@
 package geecache
 
 import (
+	"log"
 	"sync"
 )
 
@@ -23,6 +24,7 @@ type Group struct {
 	name   string
 	getter Getter
 	cache  Cache
+	picker PeerPicker
 }
 
 var (
@@ -67,6 +69,22 @@ func (g *Group) Get(key string) (*CacheData, bool) {
 }
 
 func (g *Group) load(key string) (*CacheData, error) {
+	if g.picker != nil {
+		peer, _ := g.picker.Pick(key)
+		if peer != nil {
+			data, err := peer.PeerGet(g.name, key)
+			if data != nil {
+				cacheData := &CacheData{data: data}
+				return cacheData, nil
+			}
+			log.Println("[GeeCache] Failed to get from peer", err)
+		}
+	}
+
+	return g.loadLocally(key)
+}
+
+func (g *Group) loadLocally(key string) (*CacheData, error) {
 	data, err := g.getter.Get(key)
 	if err != nil {
 		return nil, err
