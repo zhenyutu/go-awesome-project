@@ -8,7 +8,7 @@ type Person struct {
 }
 
 func TestCodec(test *testing.T) {
-	codec := GetCodec("json")
+	codec := GetCodec("0")
 	p := Person{"john", 20}
 
 	val, err := codec.Encode(p)

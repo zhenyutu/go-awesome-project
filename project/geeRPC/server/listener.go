@@ -66,12 +66,8 @@ func (s *Server) HandleRequest(conn net.Conn) error {
 	service, ok := s.services[req.ServiceName]
 	if !ok {
 		resp.ErrorInfo = []byte("service not found")
-		resp.CalculateHeaderLength()
-		respData, err := message.EncodeResponse(resp)
-		if err != nil {
-			return err
-		}
-		err = s.SendResponseData(conn, respData)
+		resp.CalcHeaderBodyLength()
+		err = s.SendResponseData(conn, resp)
 		if err != nil {
 			return err
 		}
@@ -81,12 +77,14 @@ func (s *Server) HandleRequest(conn net.Conn) error {
 		return err
 	}
 
-	// 写回响应
+	//编码结果
 	resultData, err := codecTool.Encode(result)
 	if err != nil {
 		return err
 	}
-	_, err = conn.Write(resultData)
+	resp.Data = resultData
+	// 写回响应
+	err = s.SendResponseData(conn, resp)
 	if err != nil {
 		return err
 	}
@@ -120,8 +118,15 @@ func (s *Server) ReadRequestData(conn net.Conn) ([]byte, error) {
 	return data, nil
 }
 
-func (s *Server) SendResponseData(conn net.Conn, data []byte) error {
-	_, err := conn.Write(data)
+func (s *Server) SendResponseData(conn net.Conn, resp *message.Response) error {
+	//编码
+	respData, err := message.EncodeResponse(resp)
+	if err != nil {
+		return err
+	}
+
+	//发送
+	_, err = conn.Write(respData)
 	if err != nil {
 		return err
 	}
