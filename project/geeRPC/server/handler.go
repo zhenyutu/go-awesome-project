@@ -13,8 +13,10 @@ type RPCHandler struct {
 
 func (h *RPCHandler) Handle(methodName string, params []interface{}) ([]interface{}, error) {
 	argsIn := make([]reflect.Value, len(params))
-	for i, p := range params {
-		argsIn[i] = reflect.ValueOf(p)
+	if params != nil && len(params) > 0 {
+		for i, p := range params {
+			argsIn[i] = reflect.ValueOf(p)
+		}
 	}
 
 	method := h.Object.MethodByName(methodName)

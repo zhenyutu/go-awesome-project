@@ -20,7 +20,7 @@ func NewClient(addr string) *Client {
 	return &Client{addr: addr}
 }
 
-func (cl *Client) invoke(serviceName string, serviceMethod string, args interface{}) error {
+func (cl *Client) invoke(serviceName string, serviceMethod string, args []interface{}) error {
 	//初始化请求链接
 	conn, err := net.Dial("tcp", cl.addr)
 	if err != nil {
@@ -30,9 +30,7 @@ func (cl *Client) invoke(serviceName string, serviceMethod string, args interfac
 
 	//入参编码
 	codecTool := codec.GetCodec("0")
-	argsIn := make([]interface{}, 0)
-	argsIn = append(argsIn, args)
-	argsData, err := codecTool.Encode(argsIn)
+	argsData, err := codecTool.Encode(args)
 	if err != nil {
 		return err
 	}

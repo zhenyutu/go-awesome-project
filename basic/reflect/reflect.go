@@ -23,14 +23,17 @@ func testReflectTypeValue() {
 	fmt.Println("kind:", t.Kind())
 
 	fmt.Println("==ValueOf==")
+	//获取反射类型
 	v := reflect.ValueOf(x)
 	fmt.Println("value: ", v)
 	fmt.Println("type:", v.Type())
 	fmt.Println("kind:", v.Kind())
 	fmt.Println("string:", v.String())
 	fmt.Println("value:", v.Interface())
+	//基于反射值reflect.Value获取到interface{}类型
 	fmt.Println(v.Interface())
 	fmt.Printf("value is %5.2e\n", v.Interface())
+	//基于基础类型Interface{}转化值类型
 	y := v.Interface().(float64)
 	fmt.Println(y)
 

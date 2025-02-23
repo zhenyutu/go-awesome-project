@@ -16,4 +16,6 @@ func testByteArray() {
 
 func main() {
 	testByteArray()
+	var a interface{}
+	fmt.Println("a == nil:", a == nil)
 }
