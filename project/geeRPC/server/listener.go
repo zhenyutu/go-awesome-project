@@ -7,6 +7,7 @@ import (
 	"errors"
 	"log"
 	"net"
+	"strconv"
 )
 
 func (s *Server) ListenAndHandle(addr string) error {
@@ -54,7 +55,7 @@ func (s *Server) HandleRequest(conn net.Conn) error {
 	}
 
 	//确定编码方式，入参解码
-	codecType := string(rune(int(req.Serializer)))
+	codecType := strconv.Itoa(int(req.Serializer))
 	codecTool := codec.GetCodec(codecType)
 	argsIn := make([]interface{}, 0)
 	err = codecTool.Decode(req.Data, &argsIn)
@@ -65,7 +66,7 @@ func (s *Server) HandleRequest(conn net.Conn) error {
 	// 执行
 	service, ok := s.services[req.ServiceName]
 	if !ok {
-		resp.ErrorInfo = []byte("service not found")
+		resp.ErrorInfo = "service not found"
 		resp.CalcHeaderBodyLength()
 		err = s.SendResponseData(conn, resp)
 		if err != nil {
@@ -83,6 +84,8 @@ func (s *Server) HandleRequest(conn net.Conn) error {
 		return err
 	}
 	resp.Data = resultData
+	resp.CalcHeaderBodyLength()
+
 	// 写回响应
 	err = s.SendResponseData(conn, resp)
 	if err != nil {

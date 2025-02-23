@@ -10,6 +10,10 @@ type User struct {
 	Age  int
 }
 
+func (u User) SayHello() {
+	fmt.Println("hello world")
+}
+
 func testReflectTypeValue() {
 	var x float64 = 1.2345
 
@@ -23,6 +27,7 @@ func testReflectTypeValue() {
 	fmt.Println("value: ", v)
 	fmt.Println("type:", v.Type())
 	fmt.Println("kind:", v.Kind())
+	fmt.Println("string:", v.String())
 	fmt.Println("value:", v.Interface())
 	fmt.Println(v.Interface())
 	fmt.Printf("value is %5.2e\n", v.Interface())
@@ -52,8 +57,26 @@ func testObjectReflect() {
 	fmt.Println("indirect value type name:", iv.Type().Name())
 }
 
+func testReflectMethod() {
+	user := &User{"John", 18}
+	t := reflect.ValueOf(user)
+	fmt.Println("value:", t.IsValid())
+
+	//Query
+	filed := t.Elem().FieldByName("Age")
+	fmt.Println("field: ", filed.IsValid(), filed)
+	method := t.Elem().MethodByName("SayHello")
+	fmt.Println("method: ", method.IsValid(), method)
+
+	//Invoke
+	method = t.MethodByName("SayHello")
+	fmt.Println("method: ", method.IsValid(), method)
+	result := method.Call([]reflect.Value{})
+	fmt.Println("method call result: ", result)
+}
+
 func main() {
 	//testReflectTypeValue()
-
-	testObjectReflect()
+	//testObjectReflect()
+	testReflectMethod()
 }

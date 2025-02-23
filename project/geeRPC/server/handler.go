@@ -8,7 +8,7 @@ type Handler interface {
 
 type RPCHandler struct {
 	//持有代理对象
-	obj reflect.Value
+	Object reflect.Value
 }
 
 func (h *RPCHandler) Handle(methodName string, params []interface{}) ([]interface{}, error) {
@@ -17,7 +17,7 @@ func (h *RPCHandler) Handle(methodName string, params []interface{}) ([]interfac
 		argsIn[i] = reflect.ValueOf(p)
 	}
 
-	method := h.obj.MethodByName(methodName)
+	method := h.Object.MethodByName(methodName)
 	argsOut := method.Call(argsIn)
 
 	result := make([]interface{}, len(argsOut))
@@ -25,8 +25,11 @@ func (h *RPCHandler) Handle(methodName string, params []interface{}) ([]interfac
 		result[i] = r.Interface()
 	}
 
-	if _, ok := argsIn[1].Interface().(error); ok {
-		return nil, argsIn[1].Interface().(error)
+	if len(result) > 1 {
+		if _, ok := argsIn[1].Interface().(error); ok {
+			return nil, argsIn[1].Interface().(error)
+		}
 	}
+
 	return result, nil
 }

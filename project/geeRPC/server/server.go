@@ -5,12 +5,12 @@ import "reflect"
 const header_length = 8
 
 type Server struct {
+	addr     string
 	services map[string]Handler
 }
 
-func (s *Server) NewServer(addr string) *Server {
-	server := &Server{}
-	server.services = make(map[string]Handler)
+func NewServer(addr string) *Server {
+	server := &Server{addr: addr, services: make(map[string]Handler)}
 	return server
 }
 
@@ -21,10 +21,10 @@ func (s *Server) RegisterService(service interface{}) {
 	}
 
 	s.services[objectName] = &RPCHandler{
-		obj: reflect.ValueOf(service),
+		Object: reflect.ValueOf(service),
 	}
 }
 
-func (s *Server) ListenAndServe(addr string) error {
-	return s.ListenAndHandle(addr)
+func (s *Server) Run() error {
+	return s.ListenAndHandle(s.addr)
 }
