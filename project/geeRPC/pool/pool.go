@@ -1,13 +1,14 @@
 package pool
 
 import (
+	"container/list"
 	"errors"
 	"net"
+	"sync"
 	"time"
 )
 
 var (
-	ErrClosed        = errors.New("pool is closed")
 	ErrConfigInvalid = errors.New("config is invalid")
 )
 
@@ -17,10 +18,23 @@ type Pool interface {
 }
 
 type PoolConfig struct {
-	InitialCap  int
 	MaxCap      int
 	MaxIdle     int
 	IdleTime    time.Duration
 	MaxLifetime time.Duration
 	Factory     func() (net.Conn, error)
+}
+
+func NewConnPool(config PoolConfig) (Pool, error) {
+	if config.MaxIdle > config.MaxCap || config.Factory == nil {
+		return nil, ErrConfigInvalid
+	}
+
+	connPool := &ConnPool{
+		config: config,
+		mutx:   sync.Mutex{},
+		idle:   list.New(),
+	}
+
+	return connPool, nil
 }

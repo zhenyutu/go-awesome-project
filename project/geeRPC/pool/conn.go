@@ -3,13 +3,10 @@ package pool
 import (
 	"container/list"
 	"errors"
+	"log"
 	"net"
 	"sync"
 	"time"
-)
-
-var (
-	ErrSelect = errors.New("")
 )
 
 type PoolConn struct {
@@ -59,12 +56,12 @@ type ConnPool struct {
 
 func (c *ConnPool) Get() (interface{}, error) {
 	c.mutx.Lock()
-	defer c.mutx.Unlock()
 
 	//判断是否有空闲链接，若存在直接返回
 	for c.idle.Len() > 0 {
 		pc := c.idle.Remove(c.idle.Front()).(*PoolConn)
 		if time.Now().Sub(pc.updateTime) < c.config.MaxLifetime {
+			c.mutx.Unlock()
 			return pc.conn, nil
 		}
 
@@ -80,11 +77,13 @@ func (c *ConnPool) Get() (interface{}, error) {
 
 		c.running++
 		pc := c.Warp(conn)
+		c.mutx.Unlock()
 		return pc.conn, nil
 	}
 
 	//无空闲链接，不可创建链接则阻塞
 	if c.running >= c.config.MaxCap {
+		log.Println("idle size full,blocking...")
 		req := make(chan ConnReq, 1)
 		c.connReqs = append(c.connReqs, req)
 		c.mutx.Unlock()
@@ -131,21 +130,10 @@ func (c *ConnPool) Put(conn interface{}) error {
 		return nil
 	}
 
-	c.idle.PushBack(conn)
+	c.idle.PushBack(&PoolConn{
+		conn:       nc,
+		pool:       c,
+		updateTime: time.Now(),
+	})
 	return nil
-}
-
-func NewConnPool(addr string, config PoolConfig) (Pool, error) {
-	if config.InitialCap > config.MaxCap || config.Factory == nil {
-		return nil, ErrConfigInvalid
-	}
-
-	connPool := &ConnPool{
-		addr:   addr,
-		config: config,
-		mutx:   sync.Mutex{},
-		idle:   list.New(),
-	}
-
-	return connPool, nil
 }
