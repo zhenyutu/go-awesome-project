@@ -3,6 +3,7 @@ package client
 import (
 	"awesomeProject/project/geeRPC/codec"
 	"awesomeProject/project/geeRPC/message"
+	"awesomeProject/project/geeRPC/pool"
 	"awesomeProject/project/geeRPC/service"
 	constant "awesomeProject/project/geeRPC/utils"
 	"encoding/binary"
@@ -22,11 +23,29 @@ func NewClient(addr string) *Client {
 
 func (cl *Client) invoke(serviceName string, serviceMethod string, args []interface{}) ([]byte, error) {
 	//初始化请求链接
-	conn, err := net.Dial("tcp", cl.addr)
+	//conn, err := net.Dial("tcp", cl.addr)
+	//if err != nil {
+	//	return nil, err
+	//}
+	//defer conn.Close()
+	connPool, err := pool.NewConnPool(pool.PoolConfig{
+		MaxCap:      5,
+		MaxIdle:     5,
+		IdleTime:    time.Minute,
+		MaxLifetime: time.Hour,
+		Factory: func() (net.Conn, error) {
+			return net.Dial("tcp", cl.addr)
+		},
+	})
 	if err != nil {
 		return nil, err
 	}
-	defer conn.Close()
+	poolConn, err := connPool.Get()
+	if err != nil {
+		return nil, err
+	}
+	conn := poolConn.(net.Conn)
+	defer connPool.Put(conn)
 
 	//入参编码
 	codecTool := codec.GetCodec(constant.Codec_type)
