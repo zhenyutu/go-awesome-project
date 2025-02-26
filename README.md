@@ -37,9 +37,9 @@
 
 ###  其他
 go相关github项目
-https://github.com/go-dev-frame/sponge/blob/main/assets/readme-cn.md
-https://github.com/roseduan/algo-learn/tree/master
-https://github.com/rosedblabs/rosedb
+- https://github.com/go-dev-frame/sponge/blob/main/assets/readme-cn.md
+- https://github.com/roseduan/algo-learn/tree/master
+- https://github.com/rosedblabs/rosedb
 
 ### 相关资料
 - [go语言四十二章经](https://wizardforcel.gitbooks.io/go42/content/content/42_18_struct.html)
