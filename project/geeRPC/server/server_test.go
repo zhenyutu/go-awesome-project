@@ -1,7 +1,7 @@
 package server
 
 import (
-	"awesomeProject/project/geeRPC/service"
+	"awesomeProject/project/geeRPC/example"
 	"reflect"
 	"testing"
 )
@@ -10,7 +10,7 @@ func TestServer_NewServer(t *testing.T) {
 	//初始化服务
 	server := NewServer("127.0.0.1:8080")
 	//注册服务
-	userService := service.UserService{}
+	userService := example.UserService{}
 	server.RegisterService(&userService)
 	//启动服务
 	err := server.Run()
@@ -22,7 +22,7 @@ func TestServer_NewServer(t *testing.T) {
 
 func TestServer_RegisterService(t *testing.T) {
 	server := NewServer("127.0.0.1:8080")
-	userService := &service.UserService{}
+	userService := &example.UserService{}
 	server.RegisterService(userService)
 
 	handler := server.services["UserService"].(*RPCHandler)

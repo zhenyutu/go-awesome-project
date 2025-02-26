@@ -79,7 +79,7 @@ func testReflectMethod() {
 }
 
 func main() {
-	//testReflectTypeValue()
+	testReflectTypeValue()
 	//testObjectReflect()
-	testReflectMethod()
+	//testReflectMethod()
 }

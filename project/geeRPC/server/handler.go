@@ -3,7 +3,7 @@ package server
 import "reflect"
 
 type Handler interface {
-	Handle(method string, params []interface{}) ([]interface{}, error)
+	Handle(method string, params []interface{}) (interface{}, error)
 }
 
 type RPCHandler struct {
@@ -11,7 +11,7 @@ type RPCHandler struct {
 	Object reflect.Value
 }
 
-func (h *RPCHandler) Handle(methodName string, params []interface{}) ([]interface{}, error) {
+func (h *RPCHandler) Handle(methodName string, params []interface{}) (interface{}, error) {
 	argsIn := make([]reflect.Value, len(params))
 	if params != nil && len(params) > 0 {
 		for i, p := range params {
@@ -33,5 +33,5 @@ func (h *RPCHandler) Handle(methodName string, params []interface{}) ([]interfac
 		}
 	}
 
-	return result, nil
+	return result[0], nil
 }
